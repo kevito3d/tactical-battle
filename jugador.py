@@ -4,7 +4,7 @@ from francotirador import Francotirador
 from artillero import Artillero
 from personaje import Personaje
 from typing import List
-from utils import validar_celda, comprobar_celda_disponible
+from utils import validar_celda, comprobar_celda_disponible, validar_celda_contigua
 class Jugador:
     max_col = 4
     max_row = 4
@@ -28,8 +28,9 @@ class Jugador:
         return equipo_vida_baja
             
     def curar(self, ListaPersonajes:List[Personaje]):
-        count = 1
+        count = 0
         for personaje in ListaPersonajes:
+            count += 1
             print(f"{count}. {personaje.type} {personaje.getVidaActual()}")
         option = int(input("seleccione el personaje a curar: "))
         while option < 1 or option > len(ListaPersonajes):
@@ -78,31 +79,60 @@ class Jugador:
                 francotirador = personaje
         return francotirador.habilidad(coordenada, self.oponente.equipo)
 
+    def mover(self, personaje:Personaje):
+        nueva_posicion = input(f"Indica la nueva posición contigua para {personaje.type}: ")
+        while not validar_celda(nueva_posicion, self.max_col, self.max_row) or not comprobar_celda_disponible(nueva_posicion, self.equipo) or not validar_celda_contigua( personaje.posicion,nueva_posicion):
+            print("ups, esa celda no es válida o ya está ocupada, o no es contigua")
+            nueva_posicion = input(f"Indica la nueva posición contigua para {personaje.type}: ")
+        personaje.mover(nueva_posicion)
+        return True
 
-
-        
-    
+    def disminuir_enfriamiento(self, list_personajes:List[Personaje]):
+        for personaje in list_personajes:
+            personaje.disminuir_enfriamiento()
+        return True
 
     def menu(self, equipo:List[Personaje])->dict:
         menu={}
         counter = 1
         for personaje in equipo:
-            menu[counter] ={ "texto":f"Mover {personaje.type}", "accion":personaje.mover}
+            # meter un callback en el menu
+            if not personaje.estoy_vivo():
+                continue
+
+            personajes = []
+            for personajeEquipo in self.equipo:
+                if personaje.type != personajeEquipo.type :
+                    personajes.append(personajeEquipo)
+            reseteo =self.disminuir_enfriamiento
+            menu[counter] ={ "texto":f"Mover {personaje.type}", "accion":  self.mover, "parametro":personaje, "reseteo":reseteo, "jugadores_reseteo":personajes}
             counter += 1
-            if not personaje.estoy_en_enfriamiento():
+            if  not personaje.estoy_en_enfriamiento():
                 accion = None
-                if personaje.type == "Medico" and len(self.filtrar_vida_baja()) > 0:
-                    accion = self.curar
+                if personaje.type == "Medico":
+                    if len(self.filtrar_vida_baja()) > 0:
+                        accion = lambda : self.curar(self.filtrar_vida_baja())
+                        # reseteo = 
+                        # filtrar todos los personajes menos el medico
+                        
+                    else:
+                        continue
+
                 elif personaje.type == "Artillero":
                     accion = self.disparar_en_area
+
                 elif personaje.type == "Inteligencia":
                     accion = self.revelar_enemigos
+
                 elif personaje.type == "Francotirador":
                     accion = self.matar_enemigo
-
+                
                 menu[counter] = {
                     "texto":personaje.getInfoHabilidad(),
-                    "accion": accion
+                    "accion": accion,
+                    "reseteo":reseteo,
+                    "jugadores_reseteo":personajes
+                    # curar es true 
                     }
                 counter += 1
         return menu
@@ -126,7 +156,16 @@ class Jugador:
             opt = int(input("Seleccione una opción: "))
         
         # execute action
-        menu[opt]["accion"]()
+        # si la accion tiene parametro
+        if "parametro" in menu[opt].keys():
+            menu[opt]["accion"](menu[opt]["parametro"])
+        else:
+            menu[opt]["accion"]()
+        
+        # reseteo
+        menu[opt]["reseteo"](
+            menu[opt]["jugadores_reseteo"]
+        )
         
 
 
@@ -140,6 +179,8 @@ class Jugador:
     def getSituacion(self, ):
         informe = ""
         for personaje in self.equipo:
+            if not personaje.estoy_vivo():
+                continue
             informe += personaje.getInfo() + "\n"
         # return self.informe
         return informe
@@ -162,7 +203,7 @@ class Jugador:
             while not validar_celda(pos, self.max_col, self.max_row) or not comprobar_celda_disponible( pos, self.equipo):
                 print("ups, esa celda no es válida o ya está ocupada")
                 pos = input(f"Posiciona a tu {personaje.type} en el tablero: ")
-            personaje.posicion = pos
+            personaje.posicion = pos.upper()
 
         return True
 

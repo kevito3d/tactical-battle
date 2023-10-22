@@ -12,7 +12,7 @@ class Personaje:
         self.danio=danio
 
     def setPosicion(self, posicion):
-        self.posicion=posicion
+        self.posicion=posicion.upper()
     
     def getPosicion(self, ):
         return self.posicion
@@ -23,14 +23,20 @@ class Personaje:
     def getVidaMaxima(self, ):
         return self.vida_maxima
     
-    def resetear_enfriamiento(self, ):
-        self.enfriamiento_restante=0
+    def disminuir_enfriamiento(self, ):
+        self.enfriamiento_restante= max(0, self.enfriamiento_restante - 1)
+        # if self.enfriamiento_restante > 0:
+        #     self.enfriamiento_restante -= 1
+        
     
     def estoy_en_enfriamiento(self, ):
         return self.enfriamiento_restante > 0
 
     def tengo_full_vida(self, ):
         return self.vida_actual == self.vida_maxima
+    
+    def estoy_vivo(self, ):
+        return self.vida_actual > 0
     
     
     
@@ -40,8 +46,8 @@ class Personaje:
             self.vida_actual = 0
 
 
-    def mover(self, ):
-        pass
+    def mover(self, posicion):
+        self.posicion = posicion
 
     def habilidad(self, ):
         pass

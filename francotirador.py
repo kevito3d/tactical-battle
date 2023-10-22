@@ -10,6 +10,7 @@ class Francotirador (Personaje):
         return f"{self.type} está en {self.posicion} y tiene {self.vida_actual}/ {self.vida_maxima} de vida"
     
     def habilidad(self, posicion:str, equipo:List[Personaje]):
+        self.enfriamiento_restante = 1
         salida = ""
         for personaje in equipo:
             if personaje.posicion == posicion:

@@ -32,7 +32,7 @@ def validar_celda(celda:str, max_col, max_row) -> bool:
         return False
     if LETRAS[celda[0].upper()] > max_col:
         return False
-    print("celda valida")
+    # print("celda valida")
     return True
 
 def comprobar_celda_disponible(celda, equipo: List[Personaje]) -> bool:
@@ -47,10 +47,13 @@ def validar_celda_contigua(celda1, celda2) -> bool:
     # Para comprobar si la celda 1 es contigua a la celda 2
     # para saber si son contiguas tiene que estar en vertical o horizontal y la distancia entre ellas tiene que ser 1
     # validar horizontalmente
-    horizontal = LETRAS[celda1[0]] - LETRAS[celda2[0]]
+    horizontal = LETRAS[celda1[0].upper()] - LETRAS[celda2[0].upper()]
 
     vertical = int(celda1[1]) - int(celda2[1])
 
     if horizontal == 0 and abs(vertical) == 1:
         return True
-    return False
+    elif vertical == 0 and abs(horizontal) == 1:
+        return True
+    else:
+        return False
