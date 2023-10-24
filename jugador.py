@@ -23,7 +23,7 @@ class Jugador:
         equipo_vida_baja = []
         # filtrar los personajes que tienen vida baja
         for personaje in self.equipo:
-            if personaje.vida_actual < personaje.vida_maxima:
+            if personaje.vida_actual < personaje.vida_maxima and personaje.estoy_vivo():
                 equipo_vida_baja.append(personaje)
         return equipo_vida_baja
             
@@ -35,13 +35,14 @@ class Jugador:
         option = int(input("seleccione el personaje a curar: "))
         while option < 1 or option > len(ListaPersonajes):
             option = int(input("seleccione el personaje a curar: "))
-        personaje = ListaPersonajes[option-1]
+        personajeacURAR = ListaPersonajes[option-1]
         # get personaje medico in equipo
         medico = None
         for personaje in self.equipo:
             if personaje.type == "Medico":
                 medico = personaje
-        medico.habilidad(personaje)
+        medico.habilidad(personajeacURAR)
+        return ["Curado", False]
     
     def disparar_en_area(self, ):
         coordenada = input("Indica las coordenadas de la esquina superior izquierda en la que disparar (área 2x2): ")
@@ -85,7 +86,7 @@ class Jugador:
             print("ups, esa celda no es válida o ya está ocupada, o no es contigua")
             nueva_posicion = input(f"Indica la nueva posición contigua para {personaje.type}: ")
         personaje.mover(nueva_posicion)
-        return True
+        return ["Nada que Reporta",False]
 
     def disminuir_enfriamiento(self, list_personajes:List[Personaje]):
         for personaje in list_personajes:
@@ -105,7 +106,7 @@ class Jugador:
                 if personaje.type != personajeEquipo.type :
                     personajes.append(personajeEquipo)
             reseteo =self.disminuir_enfriamiento
-            menu[counter] ={ "texto":f"Mover {personaje.type}", "accion":  self.mover, "parametro":personaje, "reseteo":reseteo, "jugadores_reseteo":personajes}
+            menu[counter] ={ "texto":f"Mover {personaje.type}", "accion":  self.mover, "parametro":personaje, "reseteo":reseteo, "jugadores_reseteo":self.equipo}
             counter += 1
             if  not personaje.estoy_en_enfriamiento():
                 accion = None
@@ -136,11 +137,20 @@ class Jugador:
                     }
                 counter += 1
         return menu
+    
+    def recibir_accion(self, accion:str)->None:
+        self.informe = accion
             
 
     def turno(self, equipo:List[Personaje] )->bool:
+        print ("---- INFORME ----")
         if self.informe != "":
-            print(self.informe)
+            print(self.informe + "\n")
+            self.informe = ""
+        else:
+            print("Nada que reportar \n")
+        
+        print ("---- SITUACION DEL EQUIPO ----")
         print(self.getSituacion())
         # counter = 1
         # for personaje in equipo:
@@ -149,23 +159,36 @@ class Jugador:
         for key, value in menu.items():
             print(f"{key}. {value['texto']}")
         
-        opt = int(input("Seleccione una opción: "))
+        opt = None
+        
+            # return False
         # validate opt if is in menu
-        while opt not in menu.keys():
-            print("opción no válida")
-            opt = int(input("Seleccione una opción: "))
+        while opt ==None or opt not in menu.keys():
+            try: 
+                opt = int(input("Seleccione una opción: "))
+            except ValueError:
+                print("opción no válida")
+                # print("escribe bien la opción")
         
         # execute action
         # si la accion tiene parametro
-        if "parametro" in menu[opt].keys():
-            menu[opt]["accion"](menu[opt]["parametro"])
+        resultado_accion = ""
+        moviendo = False
+        if "parametro" in menu[opt].keys(): # cuandio me muevo
+            moviendo = True
+            resultado_accion= menu[opt]["accion"](menu[opt]["parametro"])
         else:
-            menu[opt]["accion"]()
+            resultado_accion =menu[opt]["accion"]()
         
         # reseteo
         menu[opt]["reseteo"](
             menu[opt]["jugadores_reseteo"]
         )
+        if not moviendo:
+            print ("\n---- RESULTADO DE LA ACCION ----")
+            print(resultado_accion[0], )
+        if resultado_accion[1]:
+            self.oponente.recibir_accion(resultado_accion[0])
         
 
 
@@ -206,10 +229,3 @@ class Jugador:
             personaje.posicion = pos.upper()
 
         return True
-
-
-    def realizar_accion(self, )-> str:
-        pass
-
-    def recibir_accion(self, )->None | dict:
-        pass

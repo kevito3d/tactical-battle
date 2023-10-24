@@ -9,7 +9,7 @@ class Inteligencia (Personaje):
     def getInfo(self, ):
         return f"{self.type} está en {self.posicion} y tiene {self.vida_actual}/ {self.vida_maxima} de vida"
     
-    def habilidad(self, posicion, equipo:List[Personaje]):
+    def habilidad(self, posicion, equipo:List[Personaje]) -> [str,bool]:
         self.enfriamiento_restante = 1
 
 
@@ -30,8 +30,8 @@ class Inteligencia (Personaje):
         salida = ""
         for personaje in equipo:
             if personaje.posicion in lista_posiciones:
-                salida += f"{personaje.type} en la posicion {personaje.posicion} fue revelado\n"
-        return salida
+                salida += f"{personaje.type}  ha sido avistado en {personaje.posicion}\n"
+        return len(salida) > 0 and [salida, True] or ["Ningún personaje ha sido revelado", False]
     
     
     def getInfoHabilidad(self, ):

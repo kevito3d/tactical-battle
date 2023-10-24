@@ -9,9 +9,10 @@ class Medico (Personaje):
 
     def habilidad(self, personaje):
         self.enfriamiento_restante = 1
-        personaje.vida_actual += 1
-        if personaje.vida_actual > personaje.vida_maxima:
-            personaje.vida_actual = personaje.vida_maxima
+        # personaje.vida_actual += 1
+        # if personaje.vida_actual > personaje.vida_maxima:
+        personaje.vida_actual = personaje.vida_maxima
+        # return f"{personaje.type} ha sido curado"
 
     def getInfoHabilidad(self, ):
         return f"Curar a un compañero. ({self.type})"

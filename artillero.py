@@ -9,7 +9,7 @@ class Artillero (Personaje):
     def getInfo(self, ):
         return f"{self.type} está en {self.posicion} y tiene {self.vida_actual}/ {self.vida_maxima} de vida"
     
-    def habilidad(self, posicion, equipo:List[Personaje]):
+    def habilidad(self, posicion, equipo:List[Personaje])-> [str,bool]:
         #equipo es una lista de jugadores y cada jugador tiene su posicion
         # revelar en un cuadrado de 2 x 2 alrededor de la posicion siendo la posicion la esquina superior izquierda
         self.enfriamiento_restante = 1
@@ -28,8 +28,8 @@ class Artillero (Personaje):
         for personaje in equipo:
             if personaje.posicion in lista_posiciones:
                 personaje.recibir_danio(self.danio)
-                salida += f"{personaje.type} ha sido herido en la posicion {personaje.posicion}\n"
-        return salida
+                salida += f"{personaje.type} ha sido herido en la posicion {personaje.posicion} [Vida Restante {personaje.getVidaActual()}] \n"
+        return len(salida) > 0 and [salida, True] or ["Ningún personaje ha sido herido", False]
 
     def getInfoHabilidad(self, ):
         return f"Disparar en área (2x2). Daño {self.danio}. ({self.type})"
