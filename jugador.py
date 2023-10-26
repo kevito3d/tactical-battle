@@ -78,7 +78,9 @@ class Jugador:
         for personaje in self.equipo:
             if personaje.type == "Francotirador":
                 francotirador = personaje
-        return francotirador.habilidad(coordenada, self.oponente.equipo)
+        resultado = francotirador.habilidad(coordenada, self.oponente.equipo)
+        
+        return resultado
 
     def mover(self, personaje:Personaje):
         nueva_posicion = input(f"Indica la nueva posición contigua para {personaje.type}: ")

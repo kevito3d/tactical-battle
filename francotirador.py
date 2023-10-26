@@ -15,6 +15,9 @@ class Francotirador (Personaje):
         for personaje in equipo:
             if personaje.posicion == posicion.upper():
                 personaje.recibir_danio(self.danio)
+                if personaje.vida_actual == 0:
+                    # remove this player from equipo
+                    equipo.remove(personaje)
                 salida += f"{personaje.type} ha sido eliminado\n"
         return len(salida) > 0 and [salida, True] or ["Ningún personaje ha sido herido" , False]
 
