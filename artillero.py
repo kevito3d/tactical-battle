@@ -1,13 +1,14 @@
 from personaje import Personaje
 from typing import List
 from utils import LETRAS
+from type_player import TypePlayer
 class Artillero (Personaje):
     def __init__(self, vida_maxima = 2, danio =1, ):
         super().__init__(vida_maxima, danio)
-        self.type = "Artillero"
+        self.type = TypePlayer.Artillero
 
     def getInfo(self, ):
-        return f"{self.type} está en {self.posicion} y tiene {self.vida_actual}/ {self.vida_maxima} de vida"
+        return f"{self.type.value} está en {self.posicion} y tiene {self.vida_actual}/ {self.vida_maxima} de vida"
     
     def habilidad(self, posicion, equipo:List[Personaje])-> [str,bool]:
         #equipo es una lista de jugadores y cada jugador tiene su posicion
@@ -31,9 +32,9 @@ class Artillero (Personaje):
                 if personaje.vida_actual == 0:
                     # remove this player from equipo
                     equipo.remove(personaje)
-                salida += f"{personaje.type} ha sido herido en la posicion {personaje.posicion} [Vida Restante {personaje.getVidaActual()}] \n"
+                salida += f"{personaje.type.value} ha sido herido en la posicion {personaje.posicion} [Vida Restante {personaje.getVidaActual()}] \n"
         return len(salida) > 0 and [salida, True] or ["Ningún personaje ha sido herido", False]
 
     def getInfoHabilidad(self, ):
-        return f"Disparar en área (2x2). Daño {self.danio}. ({self.type})"
+        return f"Disparar en área (2x2). Daño {self.danio}. ({self.type.value})"
    

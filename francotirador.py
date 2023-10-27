@@ -1,13 +1,14 @@
 from personaje import Personaje
 from typing import List
-from utils import LETRAS
+from type_player import TypePlayer
+
 class Francotirador (Personaje):
     def __init__(self, vida_maxima = 3, danio =3, ):
         super().__init__(vida_maxima, danio)
-        self.type = "Francotirador"
+        self.type = TypePlayer.Franco
 
     def getInfo(self, ):
-        return f"{self.type} está en {self.posicion} y tiene {self.vida_actual}/ {self.vida_maxima} de vida"
+        return f"{self.type.value} está en {self.posicion} y tiene {self.vida_actual}/ {self.vida_maxima} de vida"
     
     def habilidad(self, posicion:str, equipo:List[Personaje])-> [str,bool]:
         self.enfriamiento_restante = 1
@@ -18,8 +19,8 @@ class Francotirador (Personaje):
                 if personaje.vida_actual == 0:
                     # remove this player from equipo
                     equipo.remove(personaje)
-                salida += f"{personaje.type} ha sido eliminado\n"
+                salida += f"{personaje.type.value} ha sido eliminado\n"
         return len(salida) > 0 and [salida, True] or ["Ningún personaje ha sido herido" , False]
 
     def getInfoHabilidad(self, ):
-        return f"Disparar a una celda. Daño {self.danio}. ({self.type})"
+        return f"Disparar a una celda. Daño {self.danio}. ({self.type.value})"

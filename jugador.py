@@ -5,6 +5,7 @@ from artillero import Artillero
 from personaje import Personaje
 from typing import List
 from utils import validar_celda, comprobar_celda_disponible, validar_celda_contigua
+from type_player import TypePlayer
 class Jugador:
     max_col = 4
     max_row = 4
@@ -31,7 +32,7 @@ class Jugador:
         count = 0
         for personaje in ListaPersonajes:
             count += 1
-            print(f"{count}. {personaje.type} {personaje.getVidaActual()}")
+            print(f"{count}. {personaje.type.value} {personaje.getVidaActual()}")
         option = int(input("seleccione el personaje a curar: "))
         while option < 1 or option > len(ListaPersonajes):
             option = int(input("seleccione el personaje a curar: "))
@@ -39,7 +40,7 @@ class Jugador:
         # get personaje medico in equipo
         medico = None
         for personaje in self.equipo:
-            if personaje.type == "Medico":
+            if personaje.type.value == "Medico":
                 medico = personaje
         medico.habilidad(personajeacURAR)
         return ["Curado", False]
@@ -52,7 +53,7 @@ class Jugador:
         # find artillero in equipo
         artillero = None
         for personaje in self.equipo:
-            if personaje.type == "Artillero":
+            if personaje.type.value == "Artillero":
                 artillero = personaje
         return artillero.habilidad(coordenada, self.oponente.equipo)
 
@@ -64,7 +65,7 @@ class Jugador:
         # find inteligencia in equipo
         inteligencia = None
         for personaje in self.equipo:
-            if personaje.type == "Inteligencia":
+            if personaje.type.value == "Inteligencia":
                 inteligencia = personaje
         return inteligencia.habilidad(coordenada, self.oponente.equipo)
     
@@ -76,17 +77,19 @@ class Jugador:
         # find francotirador in equipo
         francotirador = None
         for personaje in self.equipo:
-            if personaje.type == "Francotirador":
+            if personaje.type.value == TypePlayer.Franco.value:
                 francotirador = personaje
         resultado = francotirador.habilidad(coordenada, self.oponente.equipo)
         
         return resultado
 
     def mover(self, personaje:Personaje):
-        nueva_posicion = input(f"Indica la nueva posición contigua para {personaje.type}: ")
+        nueva_posicion = input(f"Indica la nueva posición contigua para {personaje.type.value}: ")
+        nueva_posicion = nueva_posicion.upper()
         while not validar_celda(nueva_posicion, self.max_col, self.max_row) or not comprobar_celda_disponible(nueva_posicion, self.equipo) or not validar_celda_contigua( personaje.posicion,nueva_posicion):
             print("ups, esa celda no es válida o ya está ocupada, o no es contigua")
-            nueva_posicion = input(f"Indica la nueva posición contigua para {personaje.type}: ")
+            nueva_posicion = input(f"Indica la nueva posición contigua para {personaje.type.value}: ")
+            nueva_posicion = nueva_posicion.upper()
         personaje.mover(nueva_posicion)
         return ["Nada que Reporta",False]
 
@@ -105,14 +108,14 @@ class Jugador:
 
             personajes = []
             for personajeEquipo in self.equipo:
-                if personaje.type != personajeEquipo.type :
+                if personaje.type.value != personajeEquipo.type.value :
                     personajes.append(personajeEquipo)
             reseteo =self.disminuir_enfriamiento
-            menu[counter] ={ "texto":f"Mover {personaje.type}", "accion":  self.mover, "parametro":personaje, "reseteo":reseteo, "jugadores_reseteo":self.equipo}
+            menu[counter] ={ "texto":f"Mover {personaje.type.value}", "accion":  self.mover, "parametro":personaje, "reseteo":reseteo, "jugadores_reseteo":self.equipo}
             counter += 1
             if  not personaje.estoy_en_enfriamiento():
                 accion = None
-                if personaje.type == "Medico":
+                if personaje.type.value == TypePlayer.Medico.value:
                     if len(self.filtrar_vida_baja()) > 0:
                         accion = lambda : self.curar(self.filtrar_vida_baja())
                         # reseteo = 
@@ -121,13 +124,13 @@ class Jugador:
                     else:
                         continue
 
-                elif personaje.type == "Artillero":
+                elif personaje.type.value == TypePlayer.Artillero.value :
                     accion = self.disparar_en_area
 
-                elif personaje.type == "Inteligencia":
+                elif personaje.type.value == TypePlayer.Inteligencia.value:
                     accion = self.revelar_enemigos
 
-                elif personaje.type == "Francotirador":
+                elif personaje.type.value == TypePlayer.Franco.value:
                     accion = self.matar_enemigo
                 
                 menu[counter] = {
@@ -145,6 +148,7 @@ class Jugador:
             
 
     def turno(self, equipo:List[Personaje] )->bool:
+        final = False
         print ("---- INFORME ----")
         if self.informe != "":
             print(self.informe + "\n")
@@ -191,12 +195,16 @@ class Jugador:
             print(resultado_accion[0], )
         if resultado_accion[1]:
             self.oponente.recibir_accion(resultado_accion[0])
-        
-
-
+            # find if exist francotirador and artillero in team enemy
+            counter = 0
+            for personaje in self.oponente.equipo:
+                if personaje.type.value == TypePlayer.Franco.value or personaje.type.value == TypePlayer.Artillero.value:
+                    counter += 1
+            if counter == 0:
+                final = True
             
 
-        return False
+        return final
             
 
             
@@ -224,10 +232,10 @@ class Jugador:
     def posicionar_equipo(self, ):
         
         for personaje in self.equipo:
-            pos = input(f"Posiciona a tu {personaje.type} en el tablero: ")
+            pos = input(f"Posiciona a tu {personaje.type.value} en el tablero: ")
             while not validar_celda(pos, self.max_col, self.max_row) or not comprobar_celda_disponible( pos, self.equipo):
                 print("ups, esa celda no es válida o ya está ocupada")
-                pos = input(f"Posiciona a tu {personaje.type} en el tablero: ")
+                pos = input(f"Posiciona a tu {personaje.type.value} en el tablero: ")
             personaje.posicion = pos.upper()
 
         return True

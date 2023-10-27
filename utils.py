@@ -2,6 +2,8 @@
 
 from typing import List
 from personaje import Personaje
+
+
 LETRAS = {
     "A": 1,
     "B": 2,
@@ -14,6 +16,7 @@ LETRAS = {
     "I": 9,
     "J": 10
 }
+
 
 def limpiar_terminal():
     print(chr(27) + "[2J")

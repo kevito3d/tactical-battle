@@ -1,13 +1,14 @@
 from personaje import Personaje
 from typing import List
 from utils import LETRAS
+from type_player import TypePlayer
 class Inteligencia (Personaje):
     def __init__(self, vida_maxima = 2, danio =0, ):
         super().__init__(vida_maxima, danio)
-        self.type = "Inteligencia"
+        self.type = TypePlayer.Inteligencia
 
     def getInfo(self, ):
-        return f"{self.type} está en {self.posicion} y tiene {self.vida_actual}/ {self.vida_maxima} de vida"
+        return f"{self.type.value} está en {self.posicion} y tiene {self.vida_actual}/ {self.vida_maxima} de vida"
     
     def habilidad(self, posicion, equipo:List[Personaje]) -> [str,bool]:
         self.enfriamiento_restante = 1
@@ -30,9 +31,9 @@ class Inteligencia (Personaje):
         salida = ""
         for personaje in equipo:
             if personaje.posicion in lista_posiciones:
-                salida += f"{personaje.type}  ha sido avistado en {personaje.posicion}\n"
+                salida += f"{personaje.type.value}  ha sido avistado en {personaje.posicion}\n"
         return len(salida) > 0 and [salida, True] or ["Ningún personaje ha sido revelado", False]
     
     
     def getInfoHabilidad(self, ):
-        return f"Revelar a los enemigos en un área 2x2. ({self.type})"
+        return f"Revelar a los enemigos en un área 2x2. ({self.type.value})"

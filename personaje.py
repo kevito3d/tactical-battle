@@ -1,3 +1,4 @@
+from type_player import TypePlayer
 class Personaje:
     vida_maxima=0
     vida_actual=0
@@ -5,7 +6,7 @@ class Personaje:
     enfriamiento_restante=0
     posicion=""
     equipo=[]
-    type=""
+    type=TypePlayer
     def __init__(self, vida_maxima, danio, ):
         self.vida_maxima=vida_maxima
         self.vida_actual=vida_maxima
@@ -47,7 +48,7 @@ class Personaje:
 
 
     def mover(self, posicion):
-        self.posicion = posicion
+        self.posicion = posicion.upper()
 
     def habilidad(self, ):
         pass
