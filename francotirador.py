@@ -20,6 +20,7 @@ class Francotirador (Personaje):
                     # remove this player from equipo
                     equipo.remove(personaje)
                 salida += f"{personaje.type.value} ha sido eliminado\n"
+                break
         return len(salida) > 0 and [salida, True] or ["Ningún personaje ha sido herido" , False]
 
     def getInfoHabilidad(self, ):

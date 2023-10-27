@@ -230,12 +230,17 @@ class Jugador:
         
 
     def posicionar_equipo(self, ):
-        
+        # posisciones = ["b3", "b4", "a3", "a4"]
+        # ahora ponerlos en lka primera fila
+        # posisciones = ["a1", "b1", "c1", "d1"]
+        # counter = 0
         for personaje in self.equipo:
             pos = input(f"Posiciona a tu {personaje.type.value} en el tablero: ")
             while not validar_celda(pos, self.max_col, self.max_row) or not comprobar_celda_disponible( pos, self.equipo):
                 print("ups, esa celda no es válida o ya está ocupada")
                 pos = input(f"Posiciona a tu {personaje.type.value} en el tablero: ")
+            # pos = posisciones[counter]
+            # counter += 1
             personaje.posicion = pos.upper()
 
         return True

@@ -29,10 +29,14 @@ class Artillero (Personaje):
         for personaje in equipo:
             if personaje.posicion in lista_posiciones:
                 personaje.recibir_danio(self.danio)
-                if personaje.vida_actual == 0:
-                    # remove this player from equipo
-                    equipo.remove(personaje)
+                
                 salida += f"{personaje.type.value} ha sido herido en la posicion {personaje.posicion} [Vida Restante {personaje.getVidaActual()}] \n"
+        # if personaje.vida_actual == 0:
+                #     # remove this player from equipo
+                #     equipo.remove(personaje)
+        for personaje in equipo:
+            if personaje.vida_actual == 0:
+                equipo.remove(personaje)
         return len(salida) > 0 and [salida, True] or ["Ningún personaje ha sido herido", False]
 
     def getInfoHabilidad(self, ):
