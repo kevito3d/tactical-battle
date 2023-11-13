@@ -2,7 +2,6 @@
 
 from typing import List
 from personaje import Personaje
-import json
 
 
 LETRAS = {
@@ -25,9 +24,7 @@ def limpiar_terminal():
 def validar_celda(celda:str, max_col, max_row) -> bool:
     # Para comprobar si una celda "B5" está dentro es una posición válida del
     #tablero que comprende entre A1 y (max_col, max_row)
-    # si celda no es un srt return false
-    if not isinstance(celda, str):
-        return False
+  
     if len(celda) != 2:
         return False
     if not celda[0].upper() in LETRAS.keys():
@@ -63,16 +60,3 @@ def validar_celda_contigua(celda1, celda2) -> bool:
         return True
     else:
         return False
-
-def convertToBytes(data):
-    return bytes(json.dumps(data), encoding="latin-1")
-
-# serializar un diccionario
-def convertToBytes(data):
-    return bytes(json.dumps(data), encoding="latin-1")
-
-def convertToDict(data):
-    # si no es nada return None
-    if not data:
-        return None
-    return json.loads(data.decode("latin-1"))
