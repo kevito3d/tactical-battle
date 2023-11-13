@@ -6,6 +6,9 @@ from personaje import Personaje
 from typing import List
 from utils import validar_celda, comprobar_celda_disponible, validar_celda_contigua
 from type_player import TypePlayer
+from phase_game import PhaseGame
+from cliente_jugador import ClienteJugador
+
 class Jugador:
     max_col = 4
     max_row = 4
@@ -15,10 +18,17 @@ class Jugador:
     informe = ""
     nombre = ""
     posiscionados = False
-    def __init__(self, nombre):
-        self.nombre = nombre
+    phase_game = PhaseGame.JOIN.value
+    def __init__(self, cliente:ClienteJugador):
+        self.cliente = cliente
         self.crear_equipo()
-        self.posicionar_equipo()
+        # self.phase_game = PhaseGame.WAIT.value
+        # if wait:
+        #     self.phase_game = PhaseGame.WAIT.value
+        #     self.cliente.datatoSend("Ahora estas en cola, esperando jugador.....", self.phase_game)
+        # else:
+        #     self.cliente.datatoSend("Partida encontrada, es momento de posicionar a tus personajes", None)
+        #     self.posicionar_equipo()
     
     def filtrar_vida_baja(self, )->List[Personaje]:
         equipo_vida_baja = []
@@ -33,9 +43,10 @@ class Jugador:
         for personaje in ListaPersonajes:
             count += 1
             print(f"{count}. {personaje.type.value} {personaje.getVidaActual()}")
-        option = int(input("seleccione el personaje a curar: "))
+        option = -1
         while option < 1 or option > len(ListaPersonajes):
-            option = int(input("seleccione el personaje a curar: "))
+            self.cliente.datatoSend("seleccione el personaje a curar: ",PhaseGame.TURN_ACTION.value)
+            option =  self.cliente.recivirData(converToInt=True)
         personajeacURAR = ListaPersonajes[option-1]
         # get personaje medico in equipo
         medico = None
@@ -46,10 +57,12 @@ class Jugador:
         return ["Curado", False]
     
     def disparar_en_area(self, ):
-        coordenada = input("Indica las coordenadas de la esquina superior izquierda en la que disparar (área 2x2): ")
+        self.cliente.datatoSend("Indica las coordenadas de la esquina superior izquierda en la que disparar (área 2x2): ",PhaseGame.TURN_ACTION.value)
+        coordenada =  self.cliente.recivirData()
         while not validar_celda(coordenada, self.max_col, self.max_row):
-            print ("coordenada no válida")
-            coordenada = input("Indica las coordenadas de la esquina superior izquierda en la que disparar (área 2x2): ")
+            self.cliente.datatoSend("coordenada no válida",None)
+            self.cliente.datatoSend("Indica las coordenadas de la esquina superior izquierda en la que disparar (área 2x2): ", PhaseGame.TURN_ACTION.value)
+            coordenada =  self.cliente.recivirData()
         # find artillero in equipo
         artillero = None
         for personaje in self.equipo:
@@ -58,10 +71,12 @@ class Jugador:
         return artillero.habilidad(coordenada, self.oponente.equipo)
 
     def revelar_enemigos(self, ):
-        coordenada = input("Indica las coordenadas de la esquina superior izquierda en la que revelar (área 2x2): ")
+        self.cliente.datatoSend("Indica las co(ordenadas de la esquina superior izquierda en la que revelar (área 2x2): ",PhaseGame.TURN_ACTION.value)
+        coordenada =  self.cliente.recivirData()
         while not validar_celda(coordenada, self.max_col, self.max_row):
-            print ("coordenada no válida")
-            coordenada = input("Indica las coordenadas de la esquina superior izquierda en la que revelar (área 2x2): ")
+            self.cliente.datatoSend("coordenada no válida",None)
+            self.cliente.datatoSend("Indica las coordenadas de la esquina superior izquierda en la que revelar (área 2x2): ",PhaseGame.TURN_ACTION.value)
+            coordenada = self.cliente.recivirData() 
         # find inteligencia in equipo
         inteligencia = None
         for personaje in self.equipo:
@@ -70,10 +85,12 @@ class Jugador:
         return inteligencia.habilidad(coordenada, self.oponente.equipo)
     
     def matar_enemigo(self, ):
-        coordenada = input("Indica las coordenadas de la celda a la que disparar: ")
+        self.cliente.datatoSend("Indica las coordenadas de la celda a la que disparar: ",PhaseGame.TURN_ACTION.value)
+        coordenada = self.cliente.recivirData()
         while not validar_celda(coordenada, self.max_col, self.max_row):
-            print ("coordenada no válida")
-            coordenada = input("Indica las coordenadas de la celda a la que disparar: ")
+            self.cliente.datatoSend("coordenada no válida",None)
+            self.cliente.datatoSend("Indica las coordenadas de la celda a la que disparar: ",PhaseGame.TURN_ACTION.value)
+            coordenada = self.cliente.recivirData()
         # find francotirador in equipo
         francotirador = None
         for personaje in self.equipo:
@@ -84,11 +101,13 @@ class Jugador:
         return resultado
 
     def mover(self, personaje:Personaje):
-        nueva_posicion = input(f"Indica la nueva posición contigua para {personaje.type.value}: ")
+        self.cliente.datatoSend(f"Indica la nueva posición contigua para {personaje.type.value}: ", PhaseGame.TURN_ACTION.value)
+        nueva_posicion = self.cliente.recivirData()
         nueva_posicion = nueva_posicion.upper()
         while not validar_celda(nueva_posicion, self.max_col, self.max_row) or not comprobar_celda_disponible(nueva_posicion, self.equipo) or not validar_celda_contigua( personaje.posicion,nueva_posicion):
-            print("ups, esa celda no es válida o ya está ocupada, o no es contigua")
-            nueva_posicion = input(f"Indica la nueva posición contigua para {personaje.type.value}: ")
+            # print("ups, esa celda no es válida o ya está ocupada, o no es contigua")
+            self.cliente.datatoSend(f"Indica la nueva posición contigua para {personaje.type.value}: ", PhaseGame.TURN_ACTION.value)
+            nueva_posicion = self.cliente.recivirData()
             nueva_posicion = nueva_posicion.upper()
         personaje.mover(nueva_posicion)
         return ["Nada que Reporta",False]
@@ -156,12 +175,11 @@ class Jugador:
         else:
             print("Nada que reportar \n")
         
-        print ("---- SITUACION DEL EQUIPO ----")
         print(self.getSituacion())
         # counter = 1
         # for personaje in equipo:
         menu = self.menu(equipo)
-
+   
         for key, value in menu.items():
             print(f"{key}. {value['texto']}")
         
@@ -206,20 +224,26 @@ class Jugador:
 
         return final
             
-
+    def getEquipo(self, ) -> List[Personaje]:
+        return self.equipo
             
-
-    def getSituacion(self, ):
-        informe = ""
+    def getInforme(self, ) -> str:
+        return self.informe
+    def getSituacion(self, )->str:
+        situacion = "---- SITUACION DEL EQUIPO ----\n"
         for personaje in self.equipo:
             if not personaje.estoy_vivo():
                 continue
-            informe += personaje.getInfo() + "\n"
+            situacion += personaje.getInfo() + "\n"
         # return self.informe
-        return informe
+        return situacion
 
     def set_oponente(self, oponente):
         self.oponente = oponente
+        
+    
+    def getOPponente(self, ) -> "Jugador":
+        return self.oponente
 
     def crear_equipo(self, ):
         medico = Medico()
@@ -235,12 +259,18 @@ class Jugador:
         # posisciones = ["a1", "b1", "c1", "d1"]
         # counter = 0
         for personaje in self.equipo:
-            pos = input(f"Posiciona a tu {personaje.type.value} en el tablero: ")
-            while not validar_celda(pos, self.max_col, self.max_row) or not comprobar_celda_disponible( pos, self.equipo):
-                print("ups, esa celda no es válida o ya está ocupada")
-                pos = input(f"Posiciona a tu {personaje.type.value} en el tablero: ")
+            self.cliente.datatoSend(f"Posiciona a tu {personaje.type.value} en el tablero: ", self.phase_game)
+            pos = self.cliente.recivirData()
+            while not validar_celda(pos, self.max_col, self.max_row) or not comprobar_celda_disponible( pos.upper(), self.equipo):
+                print("")
+                self.cliente.datatoSend("ups, esa celda no es válida o ya está ocupada", None)
+                self.cliente.datatoSend(f"Posiciona a tu {personaje.type.value} en el tablero: ", self.phase_game)
+                pos = self.cliente.recivirData()
             # pos = posisciones[counter]
             # counter += 1
             personaje.posicion = pos.upper()
+        
 
         return True
+
+    
