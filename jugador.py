@@ -16,9 +16,9 @@ class Jugador:
     # equipo es una lista de personajes
     equipo= []
     informe = ""
-    nombre = ""
     posiscionados = False
     phase_game = PhaseGame.JOIN.value
+    turns = 0
     def __init__(self, cliente:ClienteJugador):
         self.cliente = cliente
         self.crear_equipo()
@@ -204,6 +204,9 @@ class Jugador:
         else:
             resultado_accion =menu[opt]["accion"]()
         
+        self.turns += 1
+            
+        
         # reseteo
         menu[opt]["reseteo"](
             menu[opt]["jugadores_reseteo"]
@@ -226,6 +229,31 @@ class Jugador:
             
     def getEquipo(self, ) -> List[Personaje]:
         return self.equipo
+    
+    def calcular_puntaje(self, win:bool)->int:
+        score=0
+        punts_by_turns=0
+        if win:
+            score = 1000
+            punts_by_turns=max(0,(20-self.turns)) * 20
+        else:
+           if self.turns > 10:
+               punts_by_turns = (self.turns-10) * 20
+
+        punts_by_live = 0
+        # 100 puntos por cada jugador vivo
+        for personaje in self.equipo:
+            if personaje.estoy_vivo():
+                punts_by_live += 100
+        # 100 puntos por cada jugador enemigo muerto
+        punts_by_player_dead = 0
+        for personaje in self.oponente.getEquipo():
+            if not personaje.estoy_vivo():
+                punts_by_player_dead += 100
+        
+        score += punts_by_turns + punts_by_live + punts_by_player_dead
+        return score
+        
             
     def getInforme(self, ) -> str:
         return self.informe

@@ -1,0 +1,7 @@
+# Borrar esta línea antes de usar!! Formato de cada línea: usuario:puntuacion:oponente:fechayhora (año-mes-dia-hora-minuto)
+valeria:1380:alex:2023-11-27-10-50
+lia:1300:joan:2023-11-26-14-45
+victor:1000:valeria:2023-11-25-20-10
+joan:740:lia:2023-11-26-14-45
+alex:620:valeria:2023-11-27-10-50
+valeria:500:victor:2023-11-25-20-10
